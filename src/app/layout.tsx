@@ -3,9 +3,9 @@ import { Inter } from 'next/font/google'
 import React from 'react'
 import { Toaster } from '@/components/ui/toaster'
 import Header from '@/components/Header'
+import { Footer } from '@/components/footer'
 import { Analytics } from '@vercel/analytics/react'
 const inter = Inter({ subsets: ['latin'] })
-import { ThemeProvider } from '@/components/theme-provider'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -21,18 +21,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en">
-			<ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
-				<body className={inter.className}>
-					<div className="flex flex-col min-h-screen">
-						<Header />
-						<main className="flex-grow h-full flex flex-col">{children}</main>
-						<footer className="flex justify-center items-center py-4"></footer>
-						<Toaster />
-						<Analytics />
-					</div>
-				</body>
-			</ThemeProvider>
+		<html lang="en" className="dark">
+			<body className={`${inter.className} [background:#000000] text-[#ffffff]`}>
+				<div className="flex flex-col min-h-screen">
+					<Header />
+					<main className="flex-grow h-full flex flex-col">{children}</main>
+					<Footer />
+
+					<footer className="flex justify-center items-center py-4"></footer>
+				</div>
+				{/* Move Toaster and Analytics inside the body */}
+				<Toaster />
+				<Analytics />
+			</body>
 		</html>
 	)
 }

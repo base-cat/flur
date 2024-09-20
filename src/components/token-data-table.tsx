@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { ChevronDown, ChevronUp, ChevronsUpDown } from 'lucide-react'
+import { ChevronDown, ChevronUp, ChevronsUpDown, Search } from 'lucide-react'
 import {
 	ColumnDef,
 	ColumnFiltersState,
@@ -48,7 +48,7 @@ import {
 } from '@/components/ui/select'
 import { useMint } from '@/hooks/use-mint'
 import { Loader2 } from 'lucide-react'
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from '@/components/ui/skeleton'
 
 // Define TokenData interface
 export interface TokenData {
@@ -77,7 +77,7 @@ const SortButton = ({ column, children }: { column: any; children: React.ReactNo
 		<Button
 			variant="ghost"
 			onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-			className={`font-semibold text-xs tracking-wide ${
+			className={`font-semibold text-xs tracking-wide w-full justify-start px-0 ${
 				column.getIsSorted() ? 'text-white font-bold' : ''
 			}`}
 		>
@@ -121,31 +121,32 @@ ActionCell.displayName = 'ActionCell'
 export const columns: ColumnDef<TokenData>[] = [
 	{
 		id: 'actions',
-		cell: ({ row }) => <ActionCell token={row.original} />
+		cell: ({ row }) => <ActionCell token={row.original} />,
+		header: () => <div className="text-left"></div>,
 	},
 	{
 		accessorKey: 'name',
 		header: ({ column }) => <SortButton column={column}>NAME</SortButton>,
-		cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue('name')}</div>
+		cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue('name')}</div>,
 	},
 	{
 		accessorKey: 'symbol',
 		header: ({ column }) => <SortButton column={column}>SYMBOL</SortButton>,
-		cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue('symbol')}</div>
-	},
-	{
-		accessorKey: 'tokenId',
-		header: ({ column }) => <SortButton column={column}>TOKEN ID</SortButton>,
-		cell: ({ row }) => (
-			<div className="whitespace-nowrap">{truncateTokenId(row.getValue('tokenId'))}</div>
-		)
+		cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue('symbol')}</div>,
 	},
 	{
 		accessorKey: 'holders',
 		header: ({ column }) => <SortButton column={column}>HOLDERS</SortButton>,
 		cell: ({ row }) => (
 			<div className="whitespace-nowrap">{formatNumber(row.getValue('holders'))}</div>
-		)
+		),
+	},
+	{
+		accessorKey: 'tokenId',
+		header: ({ column }) => <SortButton column={column}>TOKEN ID</SortButton>,
+		cell: ({ row }) => (
+			<div className="whitespace-nowrap">{truncateTokenId(row.getValue('tokenId'))}</div>
+		),
 	},
 	{
 		accessorKey: 'currentSupply',
@@ -183,7 +184,9 @@ export const columns: ColumnDef<TokenData>[] = [
 			const token = row.original
 			const maxSupply = parseInt(token.info.max)
 			const currentSupply = parseInt(token.supply) / Math.pow(10, token.decimals)
-			const mintProgress = maxSupply > 0 ? ((currentSupply / maxSupply) * 100).toFixed(2) : '0.00'
+			const premine = parseInt(token.info.premine)
+			const mintProgress =
+				maxSupply > 0 ? (((currentSupply + premine) / maxSupply) * 100).toFixed(2) : '0.00'
 			return (
 				<div className="flex items-center space-x-2">
 					<Progress value={parseFloat(mintProgress)} className="w-20" />
@@ -192,8 +195,16 @@ export const columns: ColumnDef<TokenData>[] = [
 			)
 		},
 		sortingFn: (rowA, rowB) => {
-			const progressA = (parseInt(rowA.original.supply) / parseInt(rowA.original.info.max)) * 100
-			const progressB = (parseInt(rowB.original.supply) / parseInt(rowB.original.info.max)) * 100
+			const progressA =
+				((parseInt(rowA.original.supply) / Math.pow(10, rowA.original.decimals) +
+					parseInt(rowA.original.info.premine)) /
+					parseInt(rowA.original.info.max)) *
+				100
+			const progressB =
+				((parseInt(rowB.original.supply) / Math.pow(10, rowB.original.decimals) +
+					parseInt(rowB.original.info.premine)) /
+					parseInt(rowB.original.info.max)) *
+				100
 			return progressA - progressB
 		}
 	},
@@ -239,39 +250,45 @@ interface PaginatedTokenListResponse {
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
 const TableSkeleton = () => (
-  <div className="w-full">
-    <div className="flex items-center justify-between py-4">
-      <Skeleton className="h-9 w-[200px]" />
-      <Skeleton className="h-9 w-[180px]" />
-    </div>
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {Array(9).fill(0).map((_, i) => (
-              <TableHead key={i}>
-                <Skeleton className="h-4 w-full" />
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array(PAGE_SIZE).fill(0).map((_, i) => (
-            <TableRow key={i}>
-              {Array(9).fill(0).map((_, j) => (
-                <TableCell key={j}>
-                  <Skeleton className="h-4 w-full" />
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-    <div className="flex items-center justify-between space-x-2 py-4">
-      <Skeleton className="h-9 w-[300px]" />
-    </div>
-  </div>
+	<div className="w-full">
+		<div className="flex items-center justify-between py-4">
+			<Skeleton className="h-9 w-[200px]" />
+			<Skeleton className="h-9 w-[180px]" />
+		</div>
+		<div className="rounded-md border">
+			<Table>
+				<TableHeader>
+					<TableRow>
+						{Array(9)
+							.fill(0)
+							.map((_, i) => (
+								<TableHead key={i}>
+									<Skeleton className="h-4 w-full" />
+								</TableHead>
+							))}
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{Array(PAGE_SIZE)
+						.fill(0)
+						.map((_, i) => (
+							<TableRow key={i}>
+								{Array(9)
+									.fill(0)
+									.map((_, j) => (
+										<TableCell key={j}>
+											<Skeleton className="h-4 w-full" />
+										</TableCell>
+									))}
+							</TableRow>
+						))}
+				</TableBody>
+			</Table>
+		</div>
+		<div className="flex items-center justify-between space-x-2 py-4">
+			<Skeleton className="h-9 w-[300px]" />
+		</div>
+	</div>
 )
 
 export function TokenDataTable({}) {
@@ -281,10 +298,10 @@ export function TokenDataTable({}) {
 		`${API_URL}/api/tokens?limit=`+PAGE_SIZE+`&offset=`+offset+`&v=1`,
 		fetcher
 	)
-	debugger
 
-	const tokens = tokenResponse?.data.tokens
-	const total = tokenResponse?.data.total as number
+	// Ensure tokenResponse and tokenResponse.data are defined
+	const tokens = tokenResponse?.data?.tokens || []
+	const total = tokenResponse?.data?.total || 0
 
 	const [sorting, setSorting] = React.useState<SortingState>([{ id: 'holders', desc: true }])
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])

@@ -9,5 +9,14 @@ export default {
 
 	navbar: {
 		component: () => <Header />
+	},
+	footer: {
+		component: () => <></>
+	},
+	themeSwitch: {
+		component: () => <></>
+	},
+	sidebar: {
+		toggleButton: false
 	}
 }
