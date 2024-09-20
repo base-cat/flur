@@ -39,7 +39,7 @@ import { scaleConfig } from '@/lib/scrypt/token'
 import { Transaction } from '@scure/btc-signer';
 import * as bitcoinjs from 'bitcoinjs-lib'
 import axios from 'axios'
-import { API_URL } from '@/lib/constants'
+import { IN_API_URL} from '@/lib/constants'
 
 
 const OpenMinterArtifact = require('@/lib/scrypt/contracts/artifacts/contracts/token/openMinter.json');
@@ -409,7 +409,7 @@ type ResponseData = {
  
 async function getIndexerStatus() {
     try {
-    const response = await axios.get(`${API_URL}/api?v=1`)
+    const response = await axios.get(`${IN_API_URL}/api?v=1`)
     return response.data.data
   } catch (error) {
     console.error('Error fetching indexer status:', error)

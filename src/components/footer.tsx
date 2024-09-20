@@ -16,7 +16,7 @@ const fetcher = (url: string) => fetch(url).then(res => res.json())
 
 export function Footer() {
 	const { data } = useSWR<ApiResponse>(INDEXER_API_ENDPOINT, fetcher, {
-		refreshInterval: 5000
+		refreshInterval: 30000
 	})
 
 	const percentIndexed =
