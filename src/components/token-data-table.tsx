@@ -275,10 +275,13 @@ const TableSkeleton = () => (
 )
 
 export function TokenDataTable({}) {
+	const [currentPage, setCurrentPage] = React.useState(1)
+	const offset = PAGE_SIZE*(currentPage-1)
 	const { data: tokenResponse } = useSWR<PaginatedTokenListResponse>(
-		`${API_URL}/api/tokens?limit=10000&offset=0&v=1`,
+		`${API_URL}/api/tokens?limit=`+PAGE_SIZE+`&offset=`+offset+`&v=1`,
 		fetcher
 	)
+	debugger
 
 	const tokens = tokenResponse?.data.tokens
 	const total = tokenResponse?.data.total as number
@@ -287,7 +290,6 @@ export function TokenDataTable({}) {
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
 	const [rowSelection, setRowSelection] = React.useState({})
-	const [currentPage, setCurrentPage] = React.useState(1)
 	const router = useRouter()
 	const [globalFilter, setGlobalFilter] = React.useState('')
 	const debouncedGlobalFilter = useDebounce(globalFilter, 300)
@@ -444,7 +446,7 @@ export function TokenDataTable({}) {
 						{table.getRowModel().rows.length > 0 ? (
 							table
 								.getRowModel()
-								.rows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+								.rows
 								.map(row => (
 									<TableRow
 										key={row.id}
