@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { ChevronDown, ChevronUp, ChevronsUpDown, Search } from 'lucide-react'
+import { ChevronDown, ChevronUp, ChevronsUpDown } from 'lucide-react'
 import {
 	ColumnDef,
 	ColumnFiltersState,
