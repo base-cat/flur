@@ -4,8 +4,8 @@ services:
     shm_size: 1g
     restart: always
     environment:
-      DATABASE_HOST: host.docker.internal
-      RPC_HOST: host.docker.internal
+      DATABASE_HOST: 172.17.0.1
+      RPC_HOST: 172.17.0.1
     ports:
       - "3003:3003"
   flur:
@@ -13,12 +13,12 @@ services:
     restart: always
     environment:
       NEXT_PUBLIC_API_URL: https://api.btccat.org
-      NEXT_IN_API_URL: http://127.0.0.1:3003
-      PORT: 3004
-    entrypoint: ["yarn", "start:prod"]
-    command: ""
+      NEXT_IN_API_URL: http://172.17.0.1:3003
+      PORT: 3005
+    entrypoint: []
+    command: "yarn start"
     ports:
-      - "3004:3004"
+      - "3005:3005"
     logging:
       driver: "json-file"
       options:

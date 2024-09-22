@@ -5,7 +5,7 @@ ENV TZ=Asia/Shanghai
 
 WORKDIR /app
 COPY . /app/
-RUN yarn install && yarn build 
+RUN yarn install
 
 
 EXPOSE 3004
