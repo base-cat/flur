@@ -1,0 +1,27 @@
+services:
+  api:
+    image: tracker-api:latest
+    shm_size: 1g
+    restart: always
+    environment:
+      DATABASE_HOST: host.docker.internal
+      RPC_HOST: host.docker.internal
+    ports:
+      - "3003:3003"
+  flur:
+    image: flur:latest
+    restart: always
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.btccat.org
+      NEXT_IN_API_URL: http://127.0.0.1:3003
+      PORT: 3004
+    entrypoint: ["yarn", "start:prod"]
+    command: ""
+    ports:
+      - "3004:3004"
+    logging:
+      driver: "json-file"
+      options:
+        labels: "env,filebeat,name"
+        max-size: "1g"
+        max-file: "3"
